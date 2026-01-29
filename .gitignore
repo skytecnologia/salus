@@ -11,6 +11,12 @@ venv/
 # Environment variables
 .env
 .env.*
+.env-*
+/.env
+
+# Exception for .env.example
+!.env.example
+!.env-*.example
 
 # PyCharm
 .idea/

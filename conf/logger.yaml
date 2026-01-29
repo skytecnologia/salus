@@ -1,0 +1,38 @@
+---
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  console_formatter:
+    format: "%(asctime)s - %(levelname)s - %(name)s - %(module)s - %(funcName)s - %(lineno)s - %(message)s"
+  file_formatter:
+    format: "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+
+handlers:
+  console:
+    level: WARNING
+    formatter: console_formatter
+    class: logging.StreamHandler
+    stream: ext://sys.stdout
+  main_file:
+    formatter: file_formatter
+    class: logging.handlers.RotatingFileHandler
+    filename: dummy.log  # Will be overridden in Python. Check core/config.py, def configure_loggers():
+    maxBytes: 1000000
+    backupCount: 50
+
+loggers:
+  root:
+    level: DEBUG
+    handlers: [ console, main_file ]
+
+  zeno:
+    level: DEBUG
+
+  python_multipart:
+    level: WARNING
+    propagate: false
+
+  passlib.handlers.bcrypt:
+    level: ERROR
+    propagate: false
