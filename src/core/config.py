@@ -46,6 +46,8 @@ class GlobalSettings(BaseSettings):
     # app base paths / directories
     ROOT_DIR: str = _root_dir()
     PATH_LOGS: str = str(Path(ROOT_DIR) / 'logs')
+    # middleware and session
+    SECRET_KEY: str
 
 
 @lru_cache()

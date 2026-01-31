@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Bienvenido {{ user.name }}</h1>
+    <p>Has iniciado sesión correctamente.</p>
+    <p>Gracias por usar Salus.</p>
+    <p>Si tienes alguna pregunta o problema, no dudes en contactar con el equipo de soporte.</p>
+    <button onclick="window.location.href='#'">Mis citas</button>
+    <button onclick="window.location.href='#'">Mis informes</button>
+    <hr>
+    <a href="{{ request.url_for('logout') }}">Cerrar sesión</a>
+</body>
+</html>
