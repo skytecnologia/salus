@@ -47,7 +47,8 @@ load_dotenv(env_path)
 
 
 from src.core.database import Base, engine, SessionLocal
-from src.models import user
+from src.models import User, Patient, UserPatient
+
 
 print("🔹 Creating tables if they don't exist...")
 engine.echo = True

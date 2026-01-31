@@ -1,7 +1,6 @@
-from datetime import datetime
 from typing import Optional, List
 
-from sqlalchemy import Integer, Identity, String, ForeignKey, Boolean, DateTime, func
+from sqlalchemy import Integer, Identity, String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.database import Base
@@ -23,3 +22,14 @@ class User(Base, AuditMixin, SoftDeleteMixin):
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    # Relationships
+    patients: Mapped[List["Patient"]] = relationship(
+        "Patient",
+        secondary="user_patients",
+        back_populates="users",
+    )
+    user_patients: Mapped[List["UserPatient"]] = relationship(
+        "UserPatient",
+        back_populates="user",
+    )
