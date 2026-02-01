@@ -48,7 +48,17 @@ class EndotoolsAPIClient:
                 resp = await client.get("/rest/pacientes.json", params={"idunico": mrn, "deshabilitado": 0})
                 if not resp.is_success:
                     self._handle_response_error(resp)
-                return DemographicsDTO.model_validate(resp.json())
+
+                data = resp.json()
+                # Normalize API
+                if isinstance(data, list):
+                    if not data:
+                        raise ExternalAPINotFoundError(f"No demographics found for MRN: {mrn}")
+                    data = data[0]
+                if not isinstance(data, dict):
+                    raise ExternalAPIError(f"Unexpected response format for MRN {mrn}:  {type(data).__name__}")
+
+                return DemographicsDTO.model_validate(data)
         except httpx.TimeoutException:
             logger.error(f"Timeout getting demographics for MRN: {mrn}")
             raise ExternalAPITimeoutError("Request timed out")
@@ -60,6 +70,7 @@ class EndotoolsAPIClient:
         try:
             async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout, headers=self._headers) as client:
                 resp = await client.get("/rest/citas.json", params={"id_unico_paciente": mrn})
+                print("RESP", resp)
                 if not resp.is_success:
                     self._handle_response_error(resp)
                 return [AppointmentDTO.model_validate(a) for a in resp.json()]
@@ -70,10 +81,10 @@ class EndotoolsAPIClient:
             logger.error(f"Request error getting appointments for MRN {mrn}: {e}")
             raise ExternalAPIError(f"Request failed: {e}")
 
-    async def get_examinations(self, patient_id: str) -> list[ExaminationDTO]:
+    async def get_examinations(self, patient_id: int) -> list[ExaminationDTO]:
         try:
             async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout, headers=self._headers) as client:
-                resp = await client.get("/rest/exploraciones.json", params={"estado": 1, "paciente_id": patient_id})
+                resp = await client.get("/rest/exploraciones.json", params={"estado": 1, "paciente_id": str(patient_id)})
                 if not resp.is_success:
                     self._handle_response_error(resp)
                 return [ExaminationDTO.model_validate(e) for e in resp.json()]
@@ -84,10 +95,10 @@ class EndotoolsAPIClient:
             logger.error(f"Request error getting examinations for patient ID {patient_id}: {e}")
             raise ExternalAPIError(f"Request failed: {e}")
 
-    async def get_reports(self, exploracion_id: str) -> list[ReportDTO]:
+    async def get_reports(self, exploracion_id: int) -> list[ReportDTO]:
         try:
             async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout, headers=self._headers) as client:
-                resp = await client.get("/rest/informes.json", params={"exploracion_id": exploracion_id})
+                resp = await client.get("/rest/informes.json", params={"exploracion_id": str(exploracion_id)})
                 if not resp.is_success:
                     self._handle_response_error(resp)
                 return [ReportDTO.model_validate(r) for r in resp.json()]

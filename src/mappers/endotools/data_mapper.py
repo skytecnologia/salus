@@ -5,17 +5,20 @@ from src.schemas.patient import Appointment, Examination, Report
 
 def to_appointment(dto: AppointmentDTO) -> Appointment:
     return Appointment(
-        appointment_id=dto.cita_id,
-        date=datetime.strptime(dto.fecha, "%Y-%m-%d").date(),
-        type=dto.tipo,
+        appointment_id=dto.id,
+        date=dto.fecha,
+        time=dto.hora,
+        procedure=dto.tipo_exploracion,
     )
 
 
 def to_examination(dto: ExaminationDTO) -> Examination:
     return Examination(
-        exam_id=dto.exploracion_id,
-        date=datetime.strptime(dto.fecha, "%Y-%m-%d").date(),
-        description=dto.descripcion,
+        exam_id=dto.id,
+        date=dto.fecha,
+        service=dto.servicio,
+        procedure=dto.tipo,
+        physician=dto.medico
     )
 
 

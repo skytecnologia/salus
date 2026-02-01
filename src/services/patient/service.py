@@ -7,6 +7,7 @@ from src.mappers.endotools.patient_mapper import to_patient_summary
 from src.mappers.endotools.data_mapper import to_appointment, to_examination, to_report
 from src.core.config import logger
 
+
 class PatientService:
     def __init__(self, client: EndotoolsAPIClient):
         self.client = client
@@ -39,7 +40,7 @@ class PatientService:
         # Get examinations (only if we have patient data)
         if patient:
             try:
-                exams_dto = await self.client.get_examinations(patient.mrn)
+                exams_dto = await self.client.get_examinations(patient.patient_id)
                 examinations = [to_examination(exam) for exam in exams_dto]
             except ExternalAPIError as e:
                 logger.error(f"Failed to get examinations for patient ID {patient.mrn}: {e}")

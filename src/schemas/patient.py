@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import date
+from datetime import date, time
 
 
 # schemas related to the patient domain
@@ -7,20 +7,24 @@ from datetime import date
 class PatientSummary(BaseModel):
     mrn: str
     full_name: str
-    birth_date: date
+    birth_date: date | None
     sex: str | None
+    patient_id: int
 
 
 class Appointment(BaseModel):
-    appointment_id: str
+    appointment_id: int
     date: date
-    type: str
+    time: time
+    procedure: str | None
 
 
 class Examination(BaseModel):
-    exam_id: str
+    exam_id: int
     date: date
-    description: str
+    service: str | None
+    procedure: str | None
+    physician: str | None
 
 
 class Report(BaseModel):
