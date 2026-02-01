@@ -54,3 +54,11 @@ print("🔹 Creating tables if they don't exist...")
 engine.echo = True
 Base.metadata.create_all(engine)
 print("✅ Database setup complete!")
+
+from src.auth.pwd import hash_password
+pwd = hash_password("demo")
+user = User(username='demo', name='Paciente Demo', hashed_password=pwd, is_active=True, is_superuser=False, is_password_expired=False)
+db = SessionLocal()
+db.add(user)
+db.commit()
+db.close()
