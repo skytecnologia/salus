@@ -19,24 +19,12 @@ class Patient(Base, AuditMixin, SoftDeleteMixin):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     date_of_birth: Mapped[date | None]
 
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+
+
     __table_args__ = (
         UniqueConstraint("mrn", "mrn_system"),
     )
 
     # Relationships
-    users: Mapped[List["User"]] = relationship(
-        "User",
-        secondary="user_patients",
-        back_populates="patients",
-    )
-
-
-class UserPatient(Base):
-    __tablename__ = "user_patients"
-
-    user_id = mapped_column(ForeignKey("users.id"), primary_key=True)
-    patient_id = mapped_column(ForeignKey("patients.id"), primary_key=True)
-    
-    # Relationships
-    user: Mapped["User"] = relationship("User", back_populates="user_patients")
-    patient: Mapped["Patient"] = relationship("Patient", back_populates="user_patients")
+    user: Mapped["User"] = relationship("User", back_populates="patient", foreign_keys=[user_id])

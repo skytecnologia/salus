@@ -7,6 +7,7 @@ from pathlib import Path
 from yaml import safe_load
 
 from pydantic_settings import BaseSettings
+from pydantic import field_validator
 
 
 def _root_dir():
@@ -48,6 +49,17 @@ class GlobalSettings(BaseSettings):
     PATH_LOGS: str = str(Path(ROOT_DIR) / 'logs')
     # middleware and session
     SECRET_KEY: str
+    # Endotools API settings
+    ENDOTOOLS_BASE_URL: str
+    ENDOTOOLS_KEY: str
+    ENDOTOOLS_TIMEOUT: int | None = 30
+
+    @field_validator('ENDOTOOLS_TIMEOUT', mode='before')
+    @classmethod
+    def parse_timeout(cls, v):
+        if v == '' or v is None:
+            return None
+        return int(v)
 
 
 @lru_cache()

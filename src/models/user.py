@@ -24,12 +24,4 @@ class User(Base, AuditMixin, SoftDeleteMixin):
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
-    patients: Mapped[List["Patient"]] = relationship(
-        "Patient",
-        secondary="user_patients",
-        back_populates="users",
-    )
-    user_patients: Mapped[List["UserPatient"]] = relationship(
-        "UserPatient",
-        back_populates="user",
-    )
+    patient: Mapped["Patient"] = relationship("Patient", back_populates="user", foreign_keys="Patient.user_id")
