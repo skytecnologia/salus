@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Salus</title>
+</head>
+<body>
+    <h1>Mis Informes</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Service</th>
+            <th>Procedure</th>
+            <th>Physician</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for exam in examinations %}
+            <tr data-exam-id="{{ exam.exam_id }}">
+                <td>{{ exam.date }}</td>
+                <td>{{ exam.service or "—" }}</td>
+                <td>{{ exam.procedure or "—" }}</td>
+                <td>{{ exam.physician or "—" }}</td>
+                <td>
+                    {% if exam.is_report_available %}
+                        <a href="/examinations/{{ exam.exam_id }}/report" class="btn" target="_blank">
+                            Informe
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+    <a href="{{ request.url_for('home_page') }}">Inicio</a>
+    <a href="{{ request.url_for('logout') }}">Cerrar sesión</a>
+</body>
+</html>

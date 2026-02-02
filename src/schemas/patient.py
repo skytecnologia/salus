@@ -25,9 +25,10 @@ class Examination(BaseModel):
     service: str | None
     procedure: str | None
     physician: str | None
+    is_report_available: bool | None = False
 
 
 class Report(BaseModel):
     report_id: str
-    title: str
-    url: str
+    date: date
+    procedure: str | None

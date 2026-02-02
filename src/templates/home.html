@@ -2,15 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Home</title>
+    <title>Salus</title>
 </head>
 <body>
-    <h1>Bienvenido {{ user.name }}</h1>
+    <h1>Bienvenido {{ patient.full_name }}</h1>
     <p>Has iniciado sesión correctamente.</p>
-    <p>Gracias por usar Salus.</p>
-    <p>Si tienes alguna pregunta o problema, no dudes en contactar con el equipo de soporte.</p>
-    <button onclick="window.location.href='#'">Mis citas</button>
-    <button onclick="window.location.href='#'">Mis informes</button>
+    {% if patient %}
+        <p>Gracias por usar Salus.</p>
+        <p>Fecha Nacimiento: {{ patient.birth_date }}</p>
+{#        <p>Sexo: {{ patient.sex or "Desconocido" }}</p>#}
+        <button onclick="window.location.href='{{ request.url_for('appointments_page') }}'">Mis citas</button>
+        <button onclick="window.location.href='{{ request.url_for('reports_page') }}'">Mis informes</button>
+    {% endif %}
     <hr>
     <a href="{{ request.url_for('logout') }}">Cerrar sesión</a>
 </body>

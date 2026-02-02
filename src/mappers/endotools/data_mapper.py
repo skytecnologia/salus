@@ -24,7 +24,7 @@ def to_examination(dto: ExaminationDTO) -> Examination:
 
 def to_report(dto: ReportDTO) -> Report:
     return Report(
-        report_id=dto.informe_id,
-        title=dto.titulo,
-        url=f"/reports/{dto.informe_id}",  # Generate URL for report access
+        report_id=dto.id,
+        date=dto.fecha,
+        procedure=dto.tipo,
     )

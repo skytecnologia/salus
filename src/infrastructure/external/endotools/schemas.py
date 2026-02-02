@@ -162,6 +162,36 @@ class ReportDTO(BaseModel):
         extra="ignore"
     )
 
-    informe_id: str
-    titulo: str
-    contenido: str
+    id: str
+    fecha: date | None = None
+    tipo: str | None = None
+
+    @model_validator(mode="before")
+    def preprocess_fields(cls, values: dict) -> dict:
+        # --- Parse fecha ---
+        f = values.get("fecha")
+        if f in (None, ""):
+            values["fecha"] = None
+        elif isinstance(f, date):
+            values["fecha"] = f
+        else:
+            # try common formats
+            for fmt in ("%Y-%m-%d", "%d/%m/%Y"):
+                try:
+                    values["fecha"] = datetime.strptime(f, fmt).date()
+                    break
+                except ValueError:
+                    continue
+            else:
+                logger.warning("Invalid fecha received: %r", f)
+                values["fecha"] = None
+
+        # --- Extract tipo_exploracion.nombre ---
+        values["tipo"] = None
+        exploracion = values.get("exploracion")
+        if isinstance(exploracion, dict):
+            tipo = exploracion.get("tipoExploracion")
+            if isinstance(tipo, dict):
+                values["tipo"] = tipo.get("nombre")
+
+        return values

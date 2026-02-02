@@ -23,11 +23,11 @@ handlers:
 
 loggers:
   root:
-    level: DEBUG
+    level: WARNING
     handlers: [ console, main_file ]
 
   salus:
-    level: DEBUG
+    level: WARNING
     handlers: [ console, main_file ]
     propagate: false
 
