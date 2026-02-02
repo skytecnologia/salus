@@ -5,6 +5,9 @@ Salus is a web application that allows health patients to manage their medical r
 # To run the application:
 python -m uvicorn src.main:app --host 0.0.0.0 --port 8008 --reload --env-file conf/.env.local
 
+# Pull from remote git
+git pull origin main
+
 # Access postgres and create database:
 sudo -u postgres psql
     postgres=# CREATE USER salus WITH PASSWORD 'strong_password';

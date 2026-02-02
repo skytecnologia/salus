@@ -56,7 +56,7 @@ Base.metadata.create_all(engine)
 print("✅ Database setup complete!")
 
 from src.auth.pwd import hash_password
-pwd = hash_password("demo")
+pwd = hash_password("sky2026")
 user = User(username='demo', name='Paciente Demo', hashed_password=pwd, is_active=True, is_superuser=False, is_password_expired=False)
 db = SessionLocal()
 db.add(user)
