@@ -6,8 +6,8 @@ from functools import lru_cache
 from pathlib import Path
 from yaml import safe_load
 
-from pydantic_settings import BaseSettings
-from pydantic import field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator, EmailStr
 
 
 def _root_dir():
@@ -78,6 +78,30 @@ def global_settings() -> GlobalSettings:
 # Import this into modules to access global settings
 settings = global_settings()
 """Global Settings"""
+
+
+class EmailSettings(BaseSettings):
+    EMAIL_SERVER: str
+    EMAIL_PORT: int
+    EMAIL_USERNAME: str
+    EMAIL_PASSWORD: str
+    EMAIL_FROM: EmailStr
+    EMAIL_FROM_NAME: str = "App Notifications"
+    EMAIL_STARTTLS: bool
+    EMAIL_SSL_TLS: bool
+    EMAIL_TEMPLATE_FOLDER: str
+
+    model_config = SettingsConfigDict(env_ignore_empty=True)
+
+
+@lru_cache()
+def email_settings() -> EmailSettings:
+    return EmailSettings()
+
+
+# Import this into modules to access email settings
+email_settings = email_settings()
+"""Global Email Settings"""
 
 
 def configure_logging():

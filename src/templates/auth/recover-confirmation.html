@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Salus</title>
+</head>
+<body>
+    <h1>Nueva Contraseña Enviada</h1>
+    <div>
+        <p>La nueva contraseña se ha enviado a su buzón de correo registrado en sistema.</p>
+        <p>Si no ha recibido el correo, confirme que ha indicado un código de usuario valido y activo.</p>
+        <p>Esta contraseña es válida solo para el primer acceso. Una vez inicies sesión, el sistema te pedirá
+            que la reemplaces por una nueva contraseña personal.</p>
+    </div>
+    <br><br>
+    <a href="{{ request.url_for('login_page') }}">Volver al login</a>
+</body>
+</html>

@@ -5,17 +5,29 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from src.core.config import settings, configure_logging
+from src.lib.mail import create_mailer
 
-from src.routers.login import router as login_router
+from src.routers.auth import router as login_router
 from src.routers.home import router as home_router
 from src.routers.appointments import router as appointment_router
 from src.routers.reports import router as report_router
+from src.services.email import EmailService, EmailManager
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # logging configuration
     configure_logging()
+
+    # Create the mailer and email-related services / components
+    mailer = create_mailer()
+    email_service = EmailService(mailer)
+    email_manager = EmailManager(email_service)
+    # Store them in app.state for global access (ignore ide warning as starlette will inject state to app)
+    app.state.mailer = mailer  # type: ignore
+    app.state.email_service = email_service  # type: ignore
+    app.state.email_manager = email_manager  # type: ignore
+
     yield
 
 
