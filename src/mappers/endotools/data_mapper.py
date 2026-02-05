@@ -1,6 +1,10 @@
 from datetime import datetime
-from src.infrastructure.external.endotools.schemas import AppointmentDTO, ExaminationDTO, ReportDTO
+from src.infrastructure.external.endotools.schemas import AppointmentDTO, ExaminationDTO, ReportDTO, InsurerDTO, \
+    MunicipalityDTO, ProvinceDTO
+from src.schemas.insurer import Insurer
+from src.schemas.municipality import Municipality
 from src.schemas.patient import Appointment, Examination, Report
+from src.schemas.province import Province
 
 
 def to_appointment(dto: AppointmentDTO) -> Appointment:
@@ -27,4 +31,27 @@ def to_report(dto: ReportDTO) -> Report:
         report_id=dto.id,
         date=dto.fecha,
         procedure=dto.tipo,
+    )
+
+
+def to_insurer(dto: InsurerDTO) -> Insurer:
+    return Insurer(
+        name=dto.nombre,
+        external_id=dto.id,
+    )
+
+
+def to_municipality(dto: MunicipalityDTO) -> Municipality:
+    return Municipality(
+        code=dto.codigo,
+        name=dto.nombre,
+        external_id=dto.id,
+    )
+
+
+def to_province(dto: ProvinceDTO) -> Province:
+    return Province(
+        code=dto.codigo,
+        name=dto.nombre,
+        external_id=dto.id,
     )

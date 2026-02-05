@@ -4,6 +4,28 @@ from pydantic import BaseModel, model_validator, ConfigDict
 from src.core.config import logger
 
 
+class CreatePatientRequest(BaseModel):
+    idunico: str | None = None
+    DNI: str
+    nombre: str
+    apellido1: str
+    apellido2: str = ""
+    sexo: int
+    fechaNacimiento: str
+    poblacion: str
+    provincia: str
+    telefono1: str
+    aseguradora_id: int
+
+
+class CreatePatientResponse(BaseModel):
+    model_config = ConfigDict(
+        extra="ignore"
+    )
+    
+    id: str
+
+
 class DemographicsDTO(BaseModel):
     model_config = ConfigDict(
         extra="ignore"
@@ -203,7 +225,8 @@ class ProvinceDTO(BaseModel):
     )
 
     id: int
-    name: str
+    codigo: str
+    nombre: str
 
 
 class MunicipalityDTO(BaseModel):
@@ -212,7 +235,8 @@ class MunicipalityDTO(BaseModel):
     )
 
     id: int
-    name: str
+    codigo: str
+    nombre: str
 
 
 class InsurerDTO(BaseModel):
@@ -221,4 +245,4 @@ class InsurerDTO(BaseModel):
     )
 
     id: int
-    name: str
+    nombre: str

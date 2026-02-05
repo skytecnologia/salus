@@ -2,7 +2,7 @@ import httpx
 from collections.abc import AsyncIterator
 
 from .schemas import DemographicsDTO, AppointmentDTO, ExaminationDTO, ReportDTO, ProvinceDTO, MunicipalityDTO, \
-    InsurerDTO
+    InsurerDTO, CreatePatientRequest, CreatePatientResponse
 from .exceptions import (
     ExternalAPIError, ExternalAPITimeoutError, ExternalAPINotFoundError,
     ExternalAPIAuthenticationError, ExternalAPIPermissionError, ExternalAPIServerError
@@ -168,7 +168,7 @@ class EndotoolsAPIClient:
         try:
             async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout,
                                          headers=self._headers) as client:
-                resp = await client.get("/rest/aseguradoras.json",)
+                resp = await client.get("/rest/aseguradoras.json", params={"activo": 1})
                 if not resp.is_success:
                     self._handle_response_error(resp)
                 return [InsurerDTO.model_validate(r) for r in resp.json()]
@@ -178,4 +178,58 @@ class EndotoolsAPIClient:
         except httpx.RequestError as e:
             logger.error(f"Request error getting insurers")
             raise ExternalAPIError(f"Request failed: {e}")
-        
+
+    async def create_patient(self, patient_data: CreatePatientRequest) -> CreatePatientResponse:
+        """
+        Create a new patient in Endotools.
+        Args:
+            patient_data: CreatePatientRequest with patient information
+        Returns:
+            CreatePatientResponse with the created patient ID
+        """
+        try:
+            async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout,
+                                         headers=self._headers) as client:
+                # Convert the model to dict and prepare as query params
+                params = patient_data.model_dump()
+                
+                resp = await client.post("/rest/pacientes.json", params=params)
+                if not resp.is_success:
+                    self._handle_response_error(resp)
+                
+                data = resp.json()
+                return CreatePatientResponse.model_validate(data)
+        except httpx.TimeoutException:
+            logger.error(f"Timeout creating patient in endotools")
+            raise ExternalAPITimeoutError("Request timed out")
+        except httpx.RequestError as e:
+            logger.error(f"Request error creating patient: {e}")
+            raise ExternalAPIError(f"Request failed: {e}")
+
+    async def get_patient_by_document(self, id_document_number: str) -> DemographicsDTO:
+        try:
+            async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout,
+                                         headers=self._headers) as client:
+                resp = await client.get("/rest/pacientes.json", params={"DNI": id_document_number, "deshabilitado": 0})
+                if not resp.is_success:
+                    self._handle_response_error(resp)
+
+                data = resp.json()
+                # Normalize API
+                if isinstance(data, list):
+                    if not data:
+                        raise ExternalAPINotFoundError(f"No patient found with identification: {id_document_number}")
+                    if len(data) > 1:
+                        logger.error(f"Multiple patients found with same identification: {id_document_number} (count: {len(data)})")
+                        raise ExternalAPIError(f"Multiple patients found with identification: {id_document_number}")
+                    data = data[0]
+                if not isinstance(data, dict):
+                    raise ExternalAPIError(f"Unexpected response format for patient {id_document_number}:  {type(data).__name__}")
+
+                return DemographicsDTO.model_validate(data)
+        except httpx.TimeoutException:
+            logger.error(f"Timeout getting patient: {id_document_number}")
+            raise ExternalAPITimeoutError("Request timed out")
+        except httpx.RequestError as e:
+            logger.error(f"Request error getting patient {id_document_number}: {e}")
+            raise ExternalAPIError(f"Request failed: {e}")

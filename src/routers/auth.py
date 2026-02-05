@@ -1,18 +1,27 @@
-from fastapi import APIRouter, Request, Response, BackgroundTasks
+from fastapi import APIRouter, Request, Response, BackgroundTasks, HTTPException, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.params import Form
 from starlette.responses import RedirectResponse
+from datetime import date
 
 from src.auth.pwd import verify_password, generate_random_password
 from src.auth.session import create_session_cookie, SESSION_COOKIE_NAME, SESSION_MAX_AGE, TMP_SESSION_COOKIE_NAME
+from src.core.config import logger
 from src.core.database import DBSessionDep
 from src.core.templates import templates
+from src.schemas.registration import RegistrationForm, registration_form_dependency
 
 from src.services import user as user_service
 from src.services.auth.password_reset import set_password_reset_session, get_password_reset_session
 from src.services import email as email_service
 from src.services.email import EmailManagerDep
+from src.services.insurer.deps import InsurerServiceDep
+from src.services.municipality.deps import MunicipalityServiceDep
+from src.services.province.deps import ProvinceServiceDep
 from src.services.user import get_active_user_by_id
+from src.services.auth.register.deps import RegistrationServiceDep
+from src.services.common.exceptions import UserAlreadyExistsError, UserPatientDataError
+from src.infrastructure.external.endotools.exceptions import ExternalAPIError
 
 router = APIRouter()
 
@@ -136,4 +145,60 @@ def password_reset(request: Request, db: DBSessionDep, new_password: str = Form(
     user_service.update_user_password(db, user, new_password)
 
     # request.session["success_message"] = "Contraseña actualizada correctamente. Inicie sesión."
+    return RedirectResponse(url=request.url_for("login_page"), status_code=302)
+
+
+@router.get("/auth/register", name="registration_form", response_class=HTMLResponse)
+async def registration_form(
+        request: Request,
+        insurer_service: InsurerServiceDep,
+        municipality_service: MunicipalityServiceDep,
+        province_service: ProvinceServiceDep,
+):
+    insurers = await insurer_service.get_insurers() or []
+    municipalities = await municipality_service.get_municipalities() or []
+    provinces = await province_service.get_provinces() or []
+    # if not insurers or not municipalities or not provinces:
+    #     request.session["error_message"] = "No se encontraron datos para registrar un usuario."
+    #     return "KAO"
+
+    context = {"request": request, "insurers": insurers, "municipalities": municipalities, "provinces": provinces}
+    return templates.TemplateResponse("auth/register.html", context=context)
+
+
+@router.post("/auth/register", name="registration_submit", response_class=HTMLResponse)
+async def registration_submit(
+        request: Request,
+        db: DBSessionDep,
+        registration_service: RegistrationServiceDep,
+        form_data: RegistrationForm = Depends(registration_form_dependency),
+):
+    try:
+        # Create patient in Endotools
+        patient_id = await registration_service.create_patient(form_data)
+        
+        # Store success message in session
+        request.session["success_message"] = f"Registro completado exitosamente. ID del paciente: {patient_id}"
+        
+    except UserAlreadyExistsError as e:
+        # User already exists
+        logger.warning(f"Registration failed - user already exists: {form_data.email}")
+        request.session["error_message"] = str(e)
+        
+    except UserPatientDataError as e:
+        # Patient data validation error
+        logger.error(f"Registration failed - patient data error: {e}")
+        request.session["error_message"] = str(e)
+        
+    except ExternalAPIError as e:
+        # Error communicating with Endotools API
+        logger.error(f"Registration failed - API error: {e}")
+        request.session["error_message"] = "Error al crear el paciente. Por favor, inténtelo de nuevo."
+        
+    except Exception as e:
+        # Unexpected error
+        logger.error(f"Registration failed - unexpected error: {e}")
+        request.session["error_message"] = "Ha ocurrido un error inesperado. Por favor, inténtelo de nuevo."
+    
+    # Redirect to login page
     return RedirectResponse(url=request.url_for("login_page"), status_code=302)
