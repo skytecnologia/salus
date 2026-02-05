@@ -1,7 +1,8 @@
 import httpx
 from collections.abc import AsyncIterator
 
-from .schemas import DemographicsDTO, AppointmentDTO, ExaminationDTO, ReportDTO
+from .schemas import DemographicsDTO, AppointmentDTO, ExaminationDTO, ReportDTO, ProvinceDTO, MunicipalityDTO, \
+    InsurerDTO
 from .exceptions import (
     ExternalAPIError, ExternalAPITimeoutError, ExternalAPINotFoundError,
     ExternalAPIAuthenticationError, ExternalAPIPermissionError, ExternalAPIServerError
@@ -121,7 +122,7 @@ class EndotoolsAPIClient:
         try:
             async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout,
                                          headers=self._headers) as client:
-                async with client.stream("GET", f"/rest/exploraciones/{exploration_id}/informes/_LAST.pdf",) as resp:
+                async with client.stream("GET", f"/rest/exploraciones/{exploration_id}/informes/_LAST.pdf", ) as resp:
                     if not resp.is_success:
                         self._handle_response_error(resp)
                     async for chunk in resp.aiter_bytes():
@@ -132,3 +133,49 @@ class EndotoolsAPIClient:
         except httpx.RequestError as e:
             logger.error(f"Request error getting last report for exploration ID {exploration_id}: {e}")
             raise ExternalAPIError(f"Request failed: {e}")
+
+    async def get_provinces(self) -> list[ProvinceDTO]:
+        try:
+            async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout,
+                                         headers=self._headers) as client:
+                resp = await client.get("/rest/poblaciones.json",)
+                if not resp.is_success:
+                    self._handle_response_error(resp)
+                return [ProvinceDTO.model_validate(r) for r in resp.json()]
+        except httpx.TimeoutException:
+            logger.error(f"Timeout getting provinces from endotools")
+            raise ExternalAPITimeoutError("Request timed out")
+        except httpx.RequestError as e:
+            logger.error(f"Request error getting provinces")
+            raise ExternalAPIError(f"Request failed: {e}")
+
+    async def get_municipalities(self) -> list[MunicipalityDTO]:
+        try:
+            async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout,
+                                         headers=self._headers) as client:
+                resp = await client.get("/rest/provincias.json",)
+                if not resp.is_success:
+                    self._handle_response_error(resp)
+                return [MunicipalityDTO.model_validate(r) for r in resp.json()]
+        except httpx.TimeoutException:
+            logger.error(f"Timeout getting municipalities from endotools")
+            raise ExternalAPITimeoutError("Request timed out")
+        except httpx.RequestError as e:
+            logger.error(f"Request error getting municipalities")
+            raise ExternalAPIError(f"Request failed: {e}")
+
+    async def get_insurers(self) -> list[InsurerDTO]:
+        try:
+            async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout,
+                                         headers=self._headers) as client:
+                resp = await client.get("/rest/aseguradoras.json",)
+                if not resp.is_success:
+                    self._handle_response_error(resp)
+                return [InsurerDTO.model_validate(r) for r in resp.json()]
+        except httpx.TimeoutException:
+            logger.error(f"Timeout getting insurers from endotools")
+            raise ExternalAPITimeoutError("Request timed out")
+        except httpx.RequestError as e:
+            logger.error(f"Request error getting insurers")
+            raise ExternalAPIError(f"Request failed: {e}")
+        

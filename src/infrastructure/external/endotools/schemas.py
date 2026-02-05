@@ -195,3 +195,30 @@ class ReportDTO(BaseModel):
                 values["tipo"] = tipo.get("nombre")
 
         return values
+
+
+class ProvinceDTO(BaseModel):
+    model_config = ConfigDict(
+        extra="ignore"
+    )
+
+    id: int
+    name: str
+
+
+class MunicipalityDTO(BaseModel):
+    model_config = ConfigDict(
+        extra="ignore"
+    )
+
+    id: int
+    name: str
+
+
+class InsurerDTO(BaseModel):
+    model_config = ConfigDict(
+        extra="ignore"
+    )
+
+    id: int
+    name: str
