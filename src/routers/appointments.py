@@ -15,5 +15,5 @@ async def appointments_page(request: Request, user: LoginRequiredDep, patient_se
     if patient:
         appointments_data = await patient_service.get_appointments_data(patient.mrn)
 
-    context = {"request": request, "user": user, "appointments": appointments_data}
+    context = {"request": request, "user": user, "patient": patient, "appointments": appointments_data}
     return templates.TemplateResponse("appointments.html", context=context)

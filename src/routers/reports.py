@@ -16,7 +16,7 @@ async def reports_page(request: Request, user: LoginRequiredDep, patient_service
         examinations_data = await patient_service.get_examinations_data(patient.mrn)
 
     print(examinations_data)
-    context = {"request": request, "user": user, "examinations": examinations_data}
+    context = {"request": request, "user": user, "patient": patient, "examinations": examinations_data}
     return templates.TemplateResponse("reports.html", context=context)
 
 
