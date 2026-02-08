@@ -2,17 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Salus</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salus - Confirmación de Recuperación</title>
+    <link href="{{ url_for('static', path='/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
 </head>
-<body>
-    <h1>Nueva Contraseña Enviada</h1>
-    <div>
-        <p>La nueva contraseña se ha enviado a su buzón de correo registrado en sistema.</p>
-        <p>Si no ha recibido el correo, confirme que ha indicado un código de usuario valido y activo.</p>
-        <p>Esta contraseña es válida solo para el primer acceso. Una vez inicies sesión, el sistema te pedirá
-            que la reemplaces por una nueva contraseña personal.</p>
+<body class="bg-light">
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <div class="mb-3">
+                                <div class="rounded-circle bg-success d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-check-lg text-white fs-3"></i>
+                                </div>
+                            </div>
+                            <h2 class="card-title fw-bold">Salus</h2>
+                            <p class="text-muted">Nueva Contraseña Enviada</p>
+                        </div>
+                        
+                        <div class="alert alert-success mb-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-envelope-check-fill me-2"></i>
+                                <div>
+                                    <strong>Correo enviado exitosamente</strong>
+                                    <p class="mb-0 small">La nueva contraseña se ha enviado a su buzón de correo registrado en sistema.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading"><i class="bi bi-info-circle-fill me-1"></i> Información Importante</h6>
+                                <hr class="my-2">
+                                <p class="mb-2 small">Si no ha recibido el correo, confirme que ha indicado un código de usuario valido y activo.</p>
+                                <p class="mb-0 small"><strong>Nota:</strong> Esta contraseña es válida solo para el primer acceso. Una vez inicies sesión, el sistema te pedirá que la reemplaces por una nueva contraseña personal.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <a href="{{ request.url_for('login_page') }}" class="btn btn-primary">Volver al login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <br><br>
-    <a href="{{ request.url_for('login_page') }}">Volver al login</a>
 </body>
 </html>

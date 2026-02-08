@@ -2,30 +2,158 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Salus</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salus - Mis Citas</title>
+    <link href="{{ url_for('static', path='/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
 </head>
-<body>
-    <h1>Mis Citas</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Procedure</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for appt in appointments %}
-          <tr id="appointment-{{ appt.appointment_id }}">
-            <td>{{ appt.date }}</td>
-            <td>{{ appt.time.strftime("%H:%M") }}</td>
-            <td>{{ appt.procedure or "—" }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <hr>
-    <a href="{{ request.url_for('home_page') }}">Inicio</a>
-    <a href="{{ request.url_for('logout') }}">Cerrar sesión</a>
+<body class="bg-light">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ request.url_for('home_page') }}">Salus</a>
+            <div class="navbar-nav ms-auto">
+                {% if patient %}
+                    <span class="navbar-text text-white me-3">
+                        <i class="bi bi-person-circle"></i> {{ patient.full_name }}
+                    </span>
+                {% endif %}
+                <a class="nav-link text-white" href="{{ request.url_for('logout') }}">Cerrar sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% if patient %}
+            <!-- Page Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="fw-bold">Mis Citas</h1>
+                            <p class="text-muted">Gestiona tus citas médicas programadas</p>
+                        </div>
+                        <a href="{{ request.url_for('home_page') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-house"></i> Inicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointments Table -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Próximas Citas</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if appointments %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scope="col">Fecha</th>
+                                                <th scope="col">Hora</th>
+                                                <th scope="col">Procedimiento</th>
+                                                <th scope="col" class="text-center">Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for appt in appointments %}
+                                                <tr id="appointment-{{ appt.appointment_id }}">
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                                                <i class="bi bi-calendar text-primary small"></i>
+                                                            </div>
+                                                            <span class="fw-medium">{{ appt.date }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-info text-white">{{ appt.time.strftime("%H:%M") }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="fw-medium">{{ appt.procedure or "—" }}</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge bg-success">Confirmada</span>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                        <i class="bi bi-calendar-x text-muted fs-1"></i>
+                                    </div>
+                                    <h5 class="text-muted">No tienes citas programadas</h5>
+                                    <p class="text-muted">No hay citas médicas programadas para mostrar en este momento.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <div class="p-3">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                                            <i class="bi bi-plus-circle text-primary"></i>
+                                        </div>
+                                        <h6 class="fw-bold">Nueva Cita</h6>
+                                        <p class="small text-muted">Solicitar una nueva cita médica</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3">
+                                        <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                                            <i class="bi bi-clock-history text-warning"></i>
+                                        </div>
+                                        <h6 class="fw-bold">Historial</h6>
+                                        <p class="small text-muted">Ver citas anteriores</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3">
+                                        <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                                            <i class="bi bi-bell text-info"></i>
+                                        </div>
+                                        <h6 class="fw-bold">Recordatorios</h6>
+                                        <p class="small text-muted">Configurar notificaciones</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- Access Denied Message -->
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card shadow">
+                        <div class="card-body text-center py-5">
+                            <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px;">
+                                <i class="bi bi-exclamation-triangle text-warning fs-1"></i>
+                            </div>
+                            <h3 class="fw-bold mb-3">Acceso Restringido</h3>
+                            <p class="text-muted mb-4">No tienes un perfil de paciente asociado. Esta función está disponible solo para pacientes registrados.</p>
+                            <a href="{{ request.url_for('home_page') }}" class="btn btn-primary">
+                                <i class="bi bi-house"></i> Volver al Inicio
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 </body>
 </html>

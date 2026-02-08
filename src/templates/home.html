@@ -2,19 +2,139 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Salus</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salus - Inicio</title>
+    <link href="{{ url_for('static', path='/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
 </head>
-<body>
-    <h1>Bienvenido {{ patient.full_name }}</h1>
-    <p>Has iniciado sesión correctamente.</p>
-    {% if patient %}
-        <p>Gracias por usar Salus.</p>
-        <p>Fecha Nacimiento: {{ patient.birth_date }}</p>
-{#        <p>Sexo: {{ patient.sex or "Desconocido" }}</p>#}
-        <button onclick="window.location.href='{{ request.url_for('appointments_page') }}'">Mis citas</button>
-        <button onclick="window.location.href='{{ request.url_for('reports_page') }}'">Mis informes</button>
-    {% endif %}
-    <hr>
-    <a href="{{ request.url_for('logout') }}">Cerrar sesión</a>
+<body class="bg-light">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ request.url_for('home_page') }}">Salus</a>
+            <div class="navbar-nav ms-auto">
+                {% if patient %}
+                    <span class="navbar-text text-white me-3">
+                        <i class="bi bi-person-circle"></i> {{ patient.full_name }}
+                    </span>
+                {% endif %}
+                <a class="nav-link text-white" href="{{ request.url_for('logout') }}">Cerrar sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Welcome Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 bg-gradient-primary text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="card-body p-4">
+                        {% if patient %}
+                            <h1 class="card-title fw-bold mb-3">Bienvenido, {{ patient.full_name }}</h1>
+                            <p class="card-text mb-2">Has iniciado sesión correctamente.</p>
+                            <p class="card-text mb-0">Gracias por usar Salus.</p>
+                        {% else %}
+                            <h1 class="card-title fw-bold mb-3">Bienvenido a Salus</h1>
+                            <p class="card-text mb-2">Has iniciado sesión correctamente.</p>
+                            <p class="card-text mb-0">Gracias por usar Salus.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Navigation Cards -->
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm hover-card {% if not patient %}opacity-50{% endif %}">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="bi bi-calendar-check text-primary fs-1"></i>
+                            </div>
+                        </div>
+                        <h3 class="card-title fw-bold mb-3">Mis Citas</h3>
+                        <p class="card-text text-muted mb-4">Gestiona tus citas médicas programadas</p>
+                        {% if patient %}
+                            <button onclick="window.location.href='{{ request.url_for('appointments_page') }}'" class="btn btn-primary btn-lg">
+                                Ver Citas
+                            </button>
+                        {% else %}
+                            <button class="btn btn-primary btn-lg" disabled>
+                                Ver Citas
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm hover-card {% if not patient %}opacity-50{% endif %}">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="bi bi-file-medical text-success fs-1"></i>
+                            </div>
+                        </div>
+                        <h3 class="card-title fw-bold mb-3">Mis Informes</h3>
+                        <p class="card-text text-muted mb-4">Consulta tus informes médicos y resultados</p>
+                        {% if patient %}
+                            <button onclick="window.location.href='{{ request.url_for('reports_page') }}'" class="btn btn-success btn-lg">
+                                Ver Informes
+                            </button>
+                        {% else %}
+                            <button class="btn btn-success btn-lg" disabled>
+                                Ver Informes
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Info Section -->
+        {% if patient %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Información del Paciente</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Nombre:</strong> {{ patient.full_name }}</p>
+                                <p class="mb-0"><strong>Fecha de Nacimiento:</strong> {{ patient.birth_date }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card bg-warning bg-opacity-10 border-warning">
+                    <div class="card-body text-center">
+                        <h5 class="text-warning mb-2">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Acceso Limitado
+                        </h5>
+                        <p class="text-muted mb-0">No tienes un perfil de paciente asociado. Las funciones de citas e informes médicos no están disponibles.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <style>
+        .hover-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+        }
+    </style>
 </body>
 </html>

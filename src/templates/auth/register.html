@@ -2,92 +2,122 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Salus</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salus - Registro</title>
+    <link href="{{ url_for('static', path='/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
 </head>
-<body>
-    <h1>Registro</h1>
-    
-    <form method="post" action="{{ url_for('registration_form') }}" autocomplete="off">
-        <div>
-            <label for="given_names">Nombre *</label>
-            <input type="text" id="given_names" name="given_names" required>
-        </div>
-        
-        <div>
-            <label for="family_name_1">Primer apellido *</label>
-            <input type="text" id="family_name_1" name="family_name_1" required>
-        </div>
-        
-        <div>
-            <label for="family_name_2">Segundo apellido</label>
-            <input type="text" id="family_name_2" name="family_name_2">
-        </div>
-        
-        <div>
-            <label>Sexo *</label>
-            <div>
-                <label>
-                    <input type="radio" name="gender" value="male" required> Hombre
-                </label>
-                <label>
-                    <input type="radio" name="gender" value="female" required> Mujer
-                </label>
+<body class="bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <div class="card shadow">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <h2 class="card-title fw-bold">Salus</h2>
+                            <p class="text-muted">Registro de Paciente</p>
+                        </div>
+                        
+                        <form method="post" action="{{ url_for('registration_form') }}" autocomplete="off">
+                            <div class="mb-3">
+                                <label for="id_document_number" class="form-label">DNI/NIE *</label>
+                                <input type="text" class="form-control" id="id_document_number" name="id_document_number" required>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email *</label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="phone_number" class="form-label">Número de teléfono *</label>
+                                        <input type="text" class="form-control" id="phone_number" name="phone_number" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="given_names" class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" id="given_names" name="given_names" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="family_name_1" class="form-label">Primer apellido *</label>
+                                <input type="text" class="form-control" id="family_name_1" name="family_name_1" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="family_name_2" class="form-label">Segundo apellido</label>
+                                <input type="text" class="form-control" id="family_name_2" name="family_name_2">
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="birth_date" class="form-label">Fecha de nacimiento *</label>
+                                        <input type="date" class="form-control" id="birth_date" name="birth_date" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Sexo *</label>
+                                        <div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="gender" id="gender_male" value="male" required>
+                                                <label class="form-check-label" for="gender_male">Hombre</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="gender" id="gender_female" value="female" required>
+                                                <label class="form-check-label" for="gender_female">Mujer</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="insurer_id" class="form-label">Aseguradora *</label>
+                                <select class="form-select" id="insurer_id" name="insurer_id" required>
+                                    <option value="" disabled selected>Seleccione una aseguradora</option>
+                                    {% for insurer in insurers %}
+                                    <option value="{{ insurer.external_id }}">{{ insurer.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="municipality" class="form-label">Población *</label>
+                                <select class="form-select" id="municipality" name="municipality" required>
+                                    <option value="">Seleccione una población</option>
+                                    {% for municipality in municipalities %}
+                                    <option value="{{ municipality.name }}">{{ municipality.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="province" class="form-label">Provincia *</label>
+                                <select class="form-select" id="province" name="province" required>
+                                    <option value="">Seleccione una provincia</option>
+                                    {% for province in provinces %}
+                                    <option value="{{ province.name }}">{{ province.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="{{ request.url_for('login_page') }}" class="btn btn-outline-secondary me-md-2">Volver al login</a>
+                                <button type="submit" class="btn btn-primary">Registrarse</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <div>
-            <label for="id_document_number">DNI/NIE *</label>
-            <input type="text" id="id_document_number" name="id_document_number" required>
-        </div>
-        
-        <div>
-            <label for="phone_number">Número de teléfono *</label>
-            <input type="text" id="phone_number" name="phone_number" required>
-        </div>
-        
-        <div>
-            <label for="email">Email *</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        
-        <div>
-            <label for="birth_date">Fecha de nacimiento *</label>
-            <input type="date" id="birth_date" name="birth_date" required>
-        </div>
-        
-        <div>
-            <label for="insurer_id">Aseguradora *</label>
-            <select id="insurer_id" name="insurer_id" required>
-                <option value="" disabled selected>Seleccione una aseguradora</option>
-                {% for insurer in insurers %}
-                <option value="{{ insurer.external_id }}">{{ insurer.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <div>
-            <label for="province">Provincia *</label>
-            <select id="province" name="province" required>
-                <option value="">Seleccione una provincia</option>
-                {% for province in provinces %}
-                <option value="{{ province.name }}">{{ province.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <div>
-            <label for="municipality">Población *</label>
-            <select id="municipality" name="municipality" required>
-                <option value="">Seleccione una población</option>
-                {% for municipality in municipalities %}
-                <option value="{{ municipality.name }}">{{ municipality.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <button type="submit">Registrarse</button>
-    </form>
-    <br><br>
-    <a href="{{ request.url_for('login_page') }}">Volver al login</a>
+    </div>
 </body>
 </html>
