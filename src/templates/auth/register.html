@@ -7,7 +7,7 @@
 <body>
     <h1>Registro</h1>
     
-    <form method="post" action="{{ url_for('registration_form') }}">
+    <form method="post" action="{{ url_for('registration_form') }}" autocomplete="off">
         <div>
             <label for="given_names">Nombre *</label>
             <input type="text" id="given_names" name="given_names" required>
@@ -58,9 +58,9 @@
         <div>
             <label for="insurer_id">Aseguradora *</label>
             <select id="insurer_id" name="insurer_id" required>
-                <option value="">Seleccione una aseguradora</option>
+                <option value="" disabled selected>Seleccione una aseguradora</option>
                 {% for insurer in insurers %}
-                <option value="{{ insurer.id }}">{{ insurer.name }}</option>
+                <option value="{{ insurer.external_id }}">{{ insurer.name }}</option>
                 {% endfor %}
             </select>
         </div>
