@@ -165,7 +165,10 @@ async def registration_form(
     #     request.session["error_message"] = "No se encontraron datos para registrar un usuario."
     #     return "KAO"
 
+    session_error_message = request.session.pop("error_message", None)
     context = {"request": request, "insurers": insurers, "municipalities": municipalities, "provinces": provinces}
+    if session_error_message:
+        context["error_message"] = session_error_message
     return templates.TemplateResponse("auth/register.html", context=context)
 
 
@@ -184,24 +187,28 @@ async def registration_submit(
         request.session["success_message"] = f"Registro completado exitosamente. ID del paciente: {patient_id}"
         
     except UserAlreadyExistsError as e:
-        # User already exists
+        # User already exists → redirect to login
         logger.warning(f"Registration failed - user already exists: {form_data.email}")
         request.session["error_message"] = str(e)
-        
+        return RedirectResponse(url=request.url_for("login_page"), status_code=302)
+
     except UserPatientDataError as e:
-        # Patient data validation error
+        # Patient data validation error → back to form to correct
         logger.error(f"Registration failed - patient data error: {e}")
         request.session["error_message"] = str(e)
-        
+        return RedirectResponse(url=request.url_for("registration_form"), status_code=302)
+
     except ExternalAPIError as e:
-        # Error communicating with Endotools API
+        # Error communicating with Endotools API → back to form to retry
         logger.error(f"Registration failed - API error: {e}")
         request.session["error_message"] = "Error al crear el paciente. Por favor, inténtelo de nuevo."
-        
+        return RedirectResponse(url=request.url_for("registration_form"), status_code=302)
+
     except Exception as e:
-        # Unexpected error
+        # Unexpected error → back to form to retry
         logger.error(f"Registration failed - unexpected error: {e}")
         request.session["error_message"] = "Ha ocurrido un error inesperado. Por favor, inténtelo de nuevo."
-    
-    # Redirect to login page
+        return RedirectResponse(url=request.url_for("registration_form"), status_code=302)
+
+    # Success → redirect to login page
     return RedirectResponse(url=request.url_for("login_page"), status_code=302)
