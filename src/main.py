@@ -1,10 +1,13 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import HTTPException
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.responses import RedirectResponse
 
-from src.core.config import settings, configure_logging
+from src.core.config import settings, configure_logging, logger
+from src.core.templates import templates
 from src.lib.mail import create_mailer
 
 from src.routers.auth import router as login_router
@@ -47,3 +50,27 @@ app.include_router(login_router)
 app.include_router(home_router)
 app.include_router(appointment_router)
 app.include_router(report_router)
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    # Preserve redirect-based exceptions (like LoginRequiredDep's 303)
+    if exc.status_code in (301, 302, 303, 307, 308):
+        return RedirectResponse(url=exc.headers.get("Location", "/login"), status_code=exc.status_code)
+
+    message = exc.detail or "Ha ocurrido un error."
+    return templates.TemplateResponse("error.html", {
+        "request": request,
+        "status_code": exc.status_code,
+        "message": message,
+    }, status_code=exc.status_code)
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled exception on {request.method} {request.url}: {exc}", exc_info=True)
+    return templates.TemplateResponse("error.html", {
+        "request": request,
+        "status_code": 500,
+        "message": "Ha ocurrido un error inesperado. Por favor, inténtelo de nuevo más tarde.",
+    }, status_code=500)
