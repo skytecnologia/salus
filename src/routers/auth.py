@@ -29,9 +29,12 @@ router = APIRouter()
 @router.get("/login", name="login_page", response_class=HTMLResponse)
 def login_page(request: Request, redirect_to: str = None):
     session_error_message = request.session.pop("error_message", None)
+    session_success_message = request.session.pop("success_message", None)
     context = {"request": request, "redirect_to": redirect_to}
     if session_error_message:
         context["error_message"] = session_error_message
+    if session_success_message:
+        context["success_message"] = session_success_message
     return templates.TemplateResponse("auth/login.html", context=context)
 
 
@@ -40,15 +43,15 @@ def login(request: Request, db: DBSessionDep, username: str = Form(...), passwor
           redirect_to: str = None):
     user = user_service.get_user_by_username(db, username)
     if not user or not user.is_active or not verify_password(password, user.hashed_password):
-        error_message = "Credenciales incorrectas."
-        return templates.TemplateResponse("auth/login.html", {"request": request, "error_message": error_message})
+        request.session["error_message"] = "Credenciales incorrectas."
+        return RedirectResponse(url=request.url_for("login_page"), status_code=302)
 
     # If password is expired but still usable → mark OTP as used (if it's an OTP)
     if user.is_password_expired:
         if user.otp_password_used:
             # Password is expired and OTP already used → block access
-            error_message = "Por seguridad, el acceso de este usuario se encuentra bloqueado"
-            return templates.TemplateResponse("auth/login.html", {"request": request, "error_message": error_message})
+            request.session["error_message"] = "Por seguridad, el acceso de este usuario se encuentra bloqueado"
+            return RedirectResponse(url=request.url_for("login_page"), status_code=302)
         else:
             # If password is expired but still usable → mark OTP as used (if it's an OTP)
             user.otp_password_used = True  # burn the OTP or expired password
@@ -83,7 +86,7 @@ def login(request: Request, db: DBSessionDep, username: str = Form(...), passwor
 @router.get("/auth/logout", name="logout")
 def logout(request: Request, response: Response):
     request.session.clear()
-    redirect = RedirectResponse("/login", status_code=302)
+    redirect = RedirectResponse(request.url_for("login_page"), status_code=302)
     secure_flag = request.url.scheme == "https"
     redirect.delete_cookie(SESSION_COOKIE_NAME, path="/", secure=secure_flag)
     redirect.delete_cookie(TMP_SESSION_COOKIE_NAME, path="/")  # clean reset session, if exists
